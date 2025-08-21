@@ -1,0 +1,16 @@
+Package: susobasemap
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("MIchael", "Wild", , "Wild@worldbank.org", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    DT,
+    sass,
+    shiny,
+    waiter

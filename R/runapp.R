@@ -21,6 +21,7 @@ runBaseMapApp <- function(launch.browser = T) {
     original_options <- list(shiny.maxRequestSize = getOption("shiny.maxRequestSize"))
     # change options and revert on stop
     changeoptions <- function() {
+        # increase maximum request size
         options(shiny.maxRequestSize = 500 * 1024^2)
 
         # revert to original state at the end

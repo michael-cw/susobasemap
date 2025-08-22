@@ -6,3 +6,5 @@ dev
 .Ruserdata
 .Rbuildignore
 .Rprofile
+README.Rmd
+.Rmd

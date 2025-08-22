@@ -1,0 +1,85 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<a href='https://docs.mysurvey.solutions/'>
+<img src="man/figures/susospatial.png" align="right" height="139"
+    style="float:right; height:139px;"/></a>
+
+# Survey Solutions Application for Spatial Resource Creation
+
+<!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+<div align="justify">
+
+An R Shiny application to process shapefiles and generate boundary files
+and base maps for the World Bank’s Survey Solutions CAPI system.
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [How it Works](#-how-it-works)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+------------------------------------------------------------------------
+
+## ✨ Features
+
+- **Upload Shapefiles**: Easily upload your own zipped shapefiles.
+- **Interactive Map**: View your polygons on an interactive Leaflet map.
+- **Select Polygons**:
+  - Click directly on the map to select individual polygons.
+  - Upload a `.csv` or `.txt` file containing a list of polygon IDs to
+    select them in bulk.
+- **Generate Survey Solutions Files**:
+  - Create the `.geojson` boundary file required for area questions.
+  - Generate `.tpk` or `.mbtiles` base maps for offline use in the
+    Survey Solutions Interviewer App.
+- **Download Outputs**: Download the generated files directly from the
+  application.
+
+## Installation
+
+- Install R: <https://cran.r-project.org/mirrors.html> (version 4.1.1 or
+  greater)
+
+- Install R Studio: <https://rstudio.com/products/rstudio/download/>
+  (version 1.2.5001-3 or newer)
+
+- Make sure the *devtools* package is installed, if not install it with:
+
+``` r
+install.packages("devtools")
+```
+
+- After that install the actual package:
+
+``` r
+devtools::install_github("your_git_dir/susobasemap")
+```
+
+## Start the application from RStudio
+
+``` r
+library(susobasemap)
+susobasemap::runBaseMapApp()
+```
+
+## Start the application on a Shiny Server
+
+In case you are considering to run the application on a shiny server,
+you just need to create the following app.R script in your shiny server
+app directory:
+
+``` r
+library(susobasemap)
+susobasemap::runBaseMapAppServer()
+```
+
+</div>

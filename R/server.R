@@ -9,5 +9,270 @@
 
 ###########
 main_server <- function(input, output, session) {
-    moduleSRV("mymodule")
+  ## START UP MODAL FOR MAPKEY AND USER
+  startupkeyusr <- startupModalSRV("startupModal", ,
+                                   useronly = TRUE,
+                                   welcometitle = "Welcome to the Survey Solutions Spatial Resource Creation Application!")
+  
+  ## Create APP dir for storage of resources
+  ###############################################
+  fp <- reactiveVal(NULL)
+  fpp <- reactiveVal(NULL)
+  fppTPK <- reactiveVal(NULL)
+  fppTPKerror <- reactiveVal(NULL)
+  tpkLoadError <- reactiveVal(NULL)
+  tpkDWLError <- reactiveVal(NULL)
+  tpkCPError <- reactiveVal(NULL)
+  observeEvent(startupkeyusr$user(), {
+    usr <- req(startupkeyusr$user())
+    appdir <- file.path(tools::R_user_dir("susobasemap", which = "data"), "susobasemap")
+    if (!dir.exists(appdir)) {
+      # !only if not exists
+      # 1. Data dir
+      dir.create(appdir, recursive = TRUE, showWarnings = FALSE)
+    }
+    # appdir
+    appdir <- file.path(appdir, paste0(usr))
+    fp(appdir)
+    print(fp())
+    # tif maps
+    tifdir <- file.path(appdir, "basemaps_tif")
+    if (!dir.exists(tifdir)) {
+      # !only if not exists
+      # 1. Data dir
+      dir.create(tifdir, recursive = TRUE, showWarnings = FALSE)
+    }
+    fpp(appdir)
+    # tpk maps
+    tpkdir <- file.path(appdir, "basemaps_tpk")
+    if (!dir.exists(tpkdir)) {
+      # !only if not exists
+      # 1. Data dir
+      dir.create(tpkdir, recursive = TRUE, showWarnings = FALSE)
+    }
+    fppTPK(appdir)
+    # tpk error maps
+    tpkErrodir <- file.path(appdir, "mapError")
+    if (!dir.exists(tpkErrodir)) {
+      # !only if not exists
+      # 1. Data dir
+      dir.create(tpkErrodir, recursive = TRUE, showWarnings = FALSE)
+    }
+    fppTPKerror(appdir)
+    
+    notmessage <- HTML(
+      sprintf(
+        "Your files for this session will be stored in you personal user directory under, <b>%s/%s</b>.",
+        appdir, usr
+      ) %>%
+        stringr::str_remove_all("\\n") %>%
+        stringr::str_squish()
+    )
+    
+    showNotification(
+      ui = notmessage,
+      duration = NULL,
+      id = "userinfostart",
+      type = "message",
+      session = session,
+      closeButton = T
+    )
+  })
+  shp <- reactive({
+    req(input$zip)
+    sfobj <- read_shapefile_from_zip(input$zip$datapath)
+    if (is.na(st_crs(sfobj))) {
+      showNotification("Warning: the shapefile has no CRS. Display may be inaccurate.", type = "warning")
+    }
+    sfobj <- st_make_valid(sfobj)
+    sfobj <- st_transform(sfobj, 4326)
+    # stable layer id for leaflet
+    sfobj$.lid <- seq_len(nrow(sfobj))
+    sfobj
+  })
+  ##############################################
+  selected_ids <- reactiveVal(integer(0))
+  observeEvent(shp(), { selected_ids(integer(0)) })
+  
+  output$shape_id_ui <- renderUI({
+    req(shp())
+    selectInput("shape_id_field", "Shapefile ID field", choices = names(shp()))
+  })
+  
+  output$csv_col_ui <- renderUI({
+    req(input$csv)
+    df <- tryCatch(read.csv(input$csv$datapath, check.names = FALSE), error = function(e) NULL)
+    validate(need(!is.null(df), "Could not read the CSV."))
+    selectInput("csv_id_col", "CSV ID column", choices = names(df), selected = names(df)[1])
+  })
+  
+  output$map_id_ui <- renderUI({
+    req(shp())
+    selectInput("map_id_field", "Show attribute on hover (optional)",
+                choices = names(shp()), selected = names(shp())[1])
+  })
+  
+  output$map <- leaflet::renderLeaflet({
+    req(shp())
+    sfobj <- shp()
+    leaflet::leaflet(sfobj, options = leafletOptions(preferCanvas = TRUE)) |>
+      addTiles() |>
+      addPolygons(
+        layerId = ~.lid,
+        weight = 1, color = "#444444", fillOpacity = 0.4,
+        highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
+        label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
+          ~as.character(sfobj[[input$map_id_field]])
+        } else NULL
+      ) |>
+      addScaleBar(position = "bottomleft") |>
+      fitBounds(
+        lng1 = st_bbox(sfobj)[["xmin"]],
+        lat1 = st_bbox(sfobj)[["ymin"]],
+        lng2 = st_bbox(sfobj)[["xmax"]],
+        lat2 = st_bbox(sfobj)[["ymax"]]
+      )
+  })
+  
+  observeEvent(input$map_id_field, {
+    req(shp())
+    sfobj <- shp()
+    leaflet::leafletProxy("map", data = sfobj) |>
+      clearShapes() |>
+      addPolygons(
+        layerId = ~.lid,
+        weight = 1, color = "#444444", fillOpacity = 0.4,
+        highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
+        label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
+          ~as.character(sfobj[[input$map_id_field]])
+        } else NULL
+      )
+    isolate({
+      ids <- selected_ids()
+      if (length(ids)) {
+        leaflet::leafletProxy("map") |>
+          addPolygons(
+            data = sfobj[sfobj$.lid %in% ids, , drop = FALSE],
+            weight = 2, color = "#000000",
+            fillOpacity = 0.7, opacity = 1, dashArray = "3", group = "selected"
+          )
+      }
+    })
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$map_shape_click, {
+    req(input$mode == "map")
+    id <- input$map_shape_click$id
+    if (is.null(id)) return()
+    id <- as.integer(id)
+    current <- selected_ids()
+    if (id %in% current) current <- setdiff(current, id) else current <- c(current, id)
+    selected_ids(sort(unique(current)))
+  })
+  
+  observeEvent(input$clear_sel, { selected_ids(integer(0)) })
+  
+  observeEvent(selected_ids, {
+    req(shp())
+    sfobj <- shp()
+    ids <- selected_ids()
+    # base pipe cannot take a { } block; wrap in an anon function instead
+    (\(m) {
+      m <- clearGroup(m, "selected")
+      if (length(ids)) {
+        addPolygons(
+          m,
+          data = sfobj[sfobj$.lid %in% ids, , drop = FALSE],
+          weight = 2, color = "#000000",
+          fillOpacity = 0.7, opacity = 1, dashArray = "3", group = "selected"
+        )
+      } else {
+        m
+      }
+    })(leafletProxy("map"))
+  }, ignoreInit = TRUE)
+  
+  selected_sf <- reactive({
+    req(shp())
+    sfobj <- shp()
+    if (input$mode == "map") {
+      ids <- selected_ids()
+      return(if (!length(ids)) sfobj[0, ] else sfobj[sfobj$.lid %in% ids, ])
+    }
+    # CSV mode
+    req(input$csv, input$shape_id_field)
+    df <- tryCatch(read.csv(input$csv$datapath, check.names = FALSE), error = function(e) NULL)
+    validate(need(!is.null(df), "Could not read the CSV."))
+    id_col <- if (!is.null(input$csv_id_col) && input$csv_id_col %in% names(df)) input$csv_id_col else names(df)[1]
+    ids_csv <- unique(df[[id_col]])
+    shp_ids <- as.character(sfobj[[input$shape_id_field]])
+    keep <- which(shp_ids %in% as.character(ids_csv))
+    sfobj[keep, , drop = FALSE]
+  })
+  
+  output$sel_info <- renderPrint({
+    req(shp())
+    n_total <- nrow(shp()); n_sel <- nrow(selected_sf())
+    cat("Selected polygons:", n_sel, "of", n_total, "\n")
+    if (n_sel > 0) {
+      cat("Preview of selected attribute names:\n")
+      print(head(names(selected_sf())))
+      cat("\nFirst few rows of selected attributes:\n")
+      print(utils::head(st_drop_geometry(selected_sf())))
+    } else {
+      cat("No polygons selected yet.")
+    }
+  })
+  
+  sample_seed<-reactiveVal(1234)
+  zipfilepath <- modal_createshape_server("dl_shp",
+                                          sample_seed = sample_seed,
+                                          shape_boundaries = selected_sf,
+                                          sampType = reactive({
+                                            "Random Cluster"
+                                          })
+  )
+  shapeNameForDownload <- reactive({
+    SYT <- stringr::str_remove_all(Sys.time(), "([:punct:])|([:space:])")
+    SEE <- NULL
+    paste0(paste("Shapefiles", SYT, "seed", SEE, sep = "_"), ".zip")
+  })
+  zipFileDwl_server("shapeboundaries",
+                    file_name = shapeNameForDownload,
+                    path_to_zip = zipfilepath
+  )
+  
+  TPKpath <- modal_createbasemap_server("dl_map",
+                                        fpp = fpp(), fppTPK = fppTPK(), fppTPKerror = fppTPKerror(),
+                                        sample_seed = sample_seed,
+                                        shape_boundaries = selected_sf,
+                                        sampType = reactiveVal(
+                                          "Random Cluster"
+                                        )
+  )
+  mapNameForDownload <- reactive({
+    SYT <- stringr::str_remove_all(Sys.time(), "([:punct:])|([:space:])")
+    SEE <- sample_seed()
+    paste0(paste("BaseMapFiles", SYT, "seed", SEE, sep = "_"), ".zip")
+  })
+  zipFileDwl_server("basemap",
+                    file_name = mapNameForDownload,
+                    path_to_zip = TPKpath
+  )
+  
+  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

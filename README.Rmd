@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
     <img src="man/figures/susospatial.png" align="right" height="139"
     style="float:right; height:139px;"/></a>
 
-# Survey Solutions App for Spatail Resource Creation
+# Survey Solutions Application for Spatial Resource Creation
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
@@ -26,7 +26,32 @@ knitr::opts_chunk$set(
 
 <div align="justify">
 
-This is a description of my app.
+ An R Shiny application to process shapefiles and generate boundary files and base maps for the World Bank's Survey Solutions CAPI system.
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [How it Works](#-how-it-works)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+* **Upload Shapefiles**: Easily upload your own zipped shapefiles.
+* **Interactive Map**: View your polygons on an interactive Leaflet map.
+* **Select Polygons**:
+    * Click directly on the map to select individual polygons.
+    * Upload a `.csv` or `.txt` file containing a list of polygon IDs to select them in bulk.
+* **Generate Survey Solutions Files**:
+    * Create the `.geojson` boundary file required for area questions.
+    * Generate `.tpk` or `.mbtiles` base maps for offline use in the Survey Solutions Interviewer App.
+* **Download Outputs**: Download the generated files directly from the application.
+
+
 
 
 ## Installation
@@ -46,7 +71,7 @@ install.packages("devtools")
 * After that install the actual package:
 
 ```{r install,eval=FALSE, echo=TRUE}
-devtools::install_github("your_git_dir/susobasemap")
+devtools::install_github("michael-cw/susobasemap")
 
 ```
 

@@ -80,6 +80,12 @@ main_server <- function(input, output, session) {
   })
   shp <- reactive({
     req(input$zip)
+    # waiter::waiter_show(
+    #   html = tagList(
+    #     waiter::spin_fading_circles(),
+    #     "Loading Boundaries..."
+    #   )
+    # )
     sfobj <- read_shapefile_from_zip(input$zip$datapath)
     if (is.na(st_crs(sfobj))) {
       showNotification("Warning: the shapefile has no CRS. Display may be inaccurate.", type = "warning")
@@ -88,7 +94,9 @@ main_server <- function(input, output, session) {
     sfobj <- st_transform(sfobj, 4326)
     # stable layer id for leaflet
     sfobj$.lid <- seq_len(nrow(sfobj))
+    # waiter::waiter_hide()
     sfobj
+    
   })
   ##############################################
   selected_ids <- reactiveVal(integer(0))
@@ -96,7 +104,7 @@ main_server <- function(input, output, session) {
   
   output$shape_id_ui <- renderUI({
     req(shp())
-    selectInput("shape_id_field", "Shapefile ID field", choices = names(shp()))
+    selectInput("shape_id_field", "Shapefile ID field", choices = c(names(shp())), selected = names(shp())[1])
   })
   
   output$csv_col_ui <- renderUI({
@@ -109,22 +117,28 @@ main_server <- function(input, output, session) {
   output$map_id_ui <- renderUI({
     req(shp())
     selectInput("map_id_field", "Show attribute on hover (optional)",
-                choices = names(shp()), selected = names(shp())[1])
+                choices = c("Select Variable", names(shp())))
   })
   
   output$map <- leaflet::renderLeaflet({
     req(shp())
     sfobj <- shp()
+    # waiter::waiter_show(
+    #   html = tagList(
+    #     waiter::spin_fading_circles(),
+    #     "Loading ..."
+    #   )
+    # )
     leaflet::leaflet(sfobj, options = leafletOptions(preferCanvas = TRUE)) |>
       addTiles() |>
-      addPolygons(
-        layerId = ~.lid,
-        weight = 1, color = "#444444", fillOpacity = 0.4,
-        highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
-        label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
-          ~as.character(sfobj[[input$map_id_field]])
-        } else NULL
-      ) |>
+      # addPolygons(
+      #   layerId = ~.lid,
+      #   weight = 1, color = "#444444", fillOpacity = 0.4,
+      #   highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
+      #   label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
+      #     ~as.character(sfobj[[input$map_id_field]])
+      #   } else NULL
+      # ) |>
       addScaleBar(position = "bottomleft") |>
       fitBounds(
         lng1 = st_bbox(sfobj)[["xmin"]],
@@ -132,11 +146,20 @@ main_server <- function(input, output, session) {
         lng2 = st_bbox(sfobj)[["xmax"]],
         lat2 = st_bbox(sfobj)[["ymax"]]
       )
+    # waiter::waiter_hide()
   })
   
   observeEvent(input$map_id_field, {
     req(shp())
+    req(input$map_id_field!="Select Variable")
+    print(input$map_id_field)
     sfobj <- shp()
+    waiter::waiter_show(
+      html = tagList(
+        waiter::spin_fading_circles(),
+        "Loading ..."
+      )
+    )
     leaflet::leafletProxy("map", data = sfobj) |>
       clearShapes() |>
       addPolygons(
@@ -158,6 +181,8 @@ main_server <- function(input, output, session) {
           )
       }
     })
+    waiter::waiter_hide()
+    
   }, ignoreInit = TRUE)
   
   observeEvent(input$map_shape_click, {

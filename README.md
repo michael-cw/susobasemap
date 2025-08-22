@@ -61,7 +61,7 @@ install.packages("devtools")
 - After that install the actual package:
 
 ``` r
-devtools::install_github("your_git_dir/susobasemap")
+devtools::install_github("michael-cw/susobasemap")
 ```
 
 ## Start the application from RStudio

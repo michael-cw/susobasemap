@@ -113,8 +113,7 @@ modal_createbasemap_provider_ui <- function(id,
                                                          "Confirm Basemap Service!",
                                                          icon("check-square"),
                                                          width = "100%",
-                                                         style="color: #FFFFFF; background-color: #7f0000; width: 80%;
-                                                                border-color: #7f0000; margin:0 20% 0 20%;")
+                                                         style="color: #FFFFFF;background-color: #7f0000;border-color: #7f0000")
                                      ),
                                      column(1)
                            ),
@@ -690,19 +689,30 @@ modal_createbasemap_server <- function(id,
                            } else if(sampType()== "Random Cluster" && as.numeric(input$bound_segments)>0) {
                              req(sample_seed())
                              suppressWarnings(
-                               thp<- split_poly(thp, as.numeric(input$bound_segments), sample_seed())
+                               thp<- tryCatch(
+                                 {split_poly(thp, as.numeric(input$bound_segments), sample_seed())},
+                                 error = function(e) {
+                                   shiny::showNotification(paste0(areaName, "could not be split."), type = "warning")
+                                   return(thp)
+                                 }
+                               )
                              )
                              ## add label
                              thp$label<-seq_along(st_geometry(thp))
+                             ## area name
+                             thp$areaName<-areaName
                            }
                            
                            suppressWarnings(
                              check<-tryCatch(
                                {getStaticMapAsRaster(shape = thp,
-                                                     file_path = fpp,
+                                                     file_path = file.path(fpp, "basemaps_tif"),
                                                      mapservice = baseMapService(),
                                                      singleMap = T,
-                                                     name_var = "GRIDID")},
+                                                     name_var = ifelse(
+                                                       sampType()=="Random Grid",
+                                                       "GRIDID",
+                                                       "areaName"))},
                                error = function(e) return(e)
                              )
                            )

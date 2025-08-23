@@ -78,7 +78,7 @@ main_ui<-function(request){
           )
         )
       ),
-      mainPanel(leaflet::leafletOutput("map", height = 650))
+      mainPanel(leaflet::leafletOutput("map", height = "60vh", width = "100%"))
     )
   )
 }

@@ -21,8 +21,8 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
 ## 📋 Table of Contents
 
 - [Features](#-features)
-- [Installation](#-installation)
-- [Usage](#-usage)
+- [Installation](#-Installation)
+- [Start the Application](#-start-the-application)
 - [How it Works](#-how-it-works)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -38,13 +38,16 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
   - Upload a `.csv` or `.txt` file containing a list of polygon IDs to
     select them in bulk.
 - **Generate Survey Solutions Files**:
-  - Create the `.geojson` boundary file required for area questions.
-  - Generate `.tpk` or `.mbtiles` base maps for offline use in the
-    Survey Solutions Interviewer App.
+  - Create the boundary file in *ESRI shape file format* required for
+    geography questions.
+  - Generate `.tpk` or `.tif` base maps for offline use in the Survey
+    Solutions Interviewer App.
 - **Download Outputs**: Download the generated files directly from the
   application.
+- **UPCOMING**: Send spatial resources directly to the Survey Solutions
+  server through the API interface.
 
-## Installation
+## ⚙️ Installation
 
 - Install R: <https://cran.r-project.org/mirrors.html> (version 4.1.1 or
   greater)
@@ -64,14 +67,16 @@ install.packages("devtools")
 devtools::install_github("michael-cw/susobasemap")
 ```
 
-## Start the application from RStudio
+## 🚀 Start the application
+
+### From RStudio
 
 ``` r
 library(susobasemap)
 susobasemap::runBaseMapApp()
 ```
 
-## Start the application on a Shiny Server
+### On a Shiny Server
 
 In case you are considering to run the application on a shiny server,
 you just need to create the following app.R script in your shiny server

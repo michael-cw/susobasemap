@@ -129,8 +129,11 @@ main_server <- function(input, output, session) {
     #     "Loading ..."
     #   )
     # )
-    leaflet::leaflet(sfobj, options = leafletOptions(preferCanvas = TRUE)) |>
-      addTiles() |>
+    leaflet::leaflet(sfobj) |>    #, options = leafletOptions(preferCanvas = TRUE
+      addTiles(urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+               attribution = "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, 
+                              USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, 
+                              UPR-EGP, and the GIS User Community") |>
       # addPolygons(
       #   layerId = ~.lid,
       #   weight = 1, color = "#444444", fillOpacity = 0.4,
@@ -160,27 +163,19 @@ main_server <- function(input, output, session) {
         "Loading ..."
       )
     )
+    sfobj<-sfobj %>% sf::st_simplify()
+    
     leaflet::leafletProxy("map", data = sfobj) |>
       clearShapes() |>
       addPolygons(
         layerId = ~.lid,
-        weight = 1, color = "#444444", fillOpacity = 0.4,
+        weight = 1, fillColor = "#F05023",color = "#000000", fillOpacity = 0.5,
         highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
         label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
           ~as.character(sfobj[[input$map_id_field]])
         } else NULL
       )
-    isolate({
-      ids <- selected_ids()
-      if (length(ids)) {
-        leaflet::leafletProxy("map") |>
-          addPolygons(
-            data = sfobj[sfobj$.lid %in% ids, , drop = FALSE],
-            weight = 2, color = "#000000",
-            fillOpacity = 0.7, opacity = 1, dashArray = "3", group = "selected"
-          )
-      }
-    })
+    
     waiter::waiter_hide()
     
   }, ignoreInit = TRUE)
@@ -193,9 +188,56 @@ main_server <- function(input, output, session) {
     current <- selected_ids()
     if (id %in% current) current <- setdiff(current, id) else current <- c(current, id)
     selected_ids(sort(unique(current)))
+    
+    # highight map
+    isolate({
+      sfobj <- shp()
+      ids <- current
+      if (length(ids)) {
+        leaflet::leafletProxy("map") |>
+          addPolygons(
+            data = sfobj[sfobj$.lid %in% ids, , drop = FALSE],
+            weight = 2, color = "#FDB714",
+            fillOpacity = 0.7, opacity = 1, dashArray = "3", group = "selected"
+          )
+      }
+    })
   })
   
-  observeEvent(input$clear_sel, { selected_ids(integer(0)) })
+  observeEvent(input$clear_sel, {
+    # reset table
+    selected_ids(integer(0))
+    # reset map
+    req(shp())
+    sfobj <- shp()
+    waiter::waiter_show(
+      html = tagList(
+        waiter::spin_fading_circles(),
+        "Loading ..."
+      )
+    )
+    sfobj<-sfobj %>% sf::st_simplify()
+    
+    leaflet::leafletProxy("map", data = sfobj) |>
+      clearShapes() |>
+      addPolygons(
+        layerId = ~.lid,
+        weight = 1, fillColor = "#F05023",color = "#000000", fillOpacity = 0.5,
+        highlightOptions = highlightOptions(bringToFront = TRUE, weight = 2),
+        label = if (!is.null(input$map_id_field) && input$map_id_field %in% names(sfobj)) {
+          ~as.character(sfobj[[input$map_id_field]])
+        } else NULL
+      ) |>
+      fitBounds(
+        lng1 = st_bbox(sfobj)[["xmin"]],
+        lat1 = st_bbox(sfobj)[["ymin"]],
+        lng2 = st_bbox(sfobj)[["xmax"]],
+        lat2 = st_bbox(sfobj)[["ymax"]]
+      )
+    
+    waiter::waiter_hide()
+    
+    })
   
   observeEvent(selected_ids, {
     req(shp())

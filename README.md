@@ -21,11 +21,9 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
 ## 📋 Table of Contents
 
 - [Features](#-features)
-- [Installation](#-Installation)
+- [Installation](#-installation)
 - [Start the Application](#-start-the-application)
 - [How it Works](#-how-it-works)
-- [Contributing](#-contributing)
-- [License](#-license)
 
 ------------------------------------------------------------------------
 
@@ -33,6 +31,8 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
 
 - **Upload Shapefiles**: Easily upload your own zipped shapefiles.
 - **Interactive Map**: View your polygons on an interactive Leaflet map.
+- **Download Table**: Download the polygon data in tabular
+  representation for further processing.
 - **Select Polygons**:
   - Click directly on the map to select individual polygons.
   - Upload a `.csv` or `.txt` file containing a list of polygon IDs to
@@ -47,7 +47,7 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
 - **UPCOMING**: Send spatial resources directly to the Survey Solutions
   server through the API interface.
 
-## ⚙️ Installation
+## Installation
 
 - Install R: <https://cran.r-project.org/mirrors.html> (version 4.1.1 or
   greater)
@@ -86,5 +86,9 @@ app directory:
 library(susobasemap)
 susobasemap::runBaseMapAppServer()
 ```
+
+## How it works
+
+\[TBA\]
 
 </div>

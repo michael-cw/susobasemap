@@ -326,6 +326,21 @@ main_server <- function(input, output, session) {
                     file_name = mapNameForDownload,
                     path_to_zip = TPKpath
   )
+  csvNameForDownload <- reactive({
+    SYT <- stringr::str_remove_all(Sys.time(), "([:punct:])|([:space:])")
+    SEE <- sample_seed()
+    paste0(paste("Table", SYT, "seed", SEE, sep = "_"), ".zip")
+  })
+  tableForDownload<-reactive({
+    req(shp())
+    shinyjs::enable("dl_table")
+    tmp<-shp() %>% sf::st_set_geometry(NULL)
+    return(tmp)
+  })
+  download_csv_server("dl_table",
+                      file_name = csvNameForDownload,
+                      content = tableForDownload
+                      )
   
   
 }

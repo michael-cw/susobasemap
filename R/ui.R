@@ -58,7 +58,8 @@ main_ui<-function(request){
                      modal_createshape_ui ("dl_shp", style = "color: #FFFFFF; width: 220px;background-color: #002244;border-color: #002244")
               ),
               column(6,
-                     zipFileDwl_ui("shapeboundaries")),
+                     zipFileDwl_ui("shapeboundaries",
+                                   label = "Boundaries")),
               br()),
             shiny::fluidRow(
               column(6,
@@ -66,7 +67,13 @@ main_ui<-function(request){
                                             style = "color: #FFFFFF; width: 220px;background-color: #002244;border-color: #002244")
               ),
               column(6,
-                     zipFileDwl_ui("basemap"))
+                     zipFileDwl_ui("basemap", label = "Basemaps"))
+            ),
+            shiny::fluidRow(
+              column(6),
+              column(6,
+                       dwl_dataUI("dl_table", label = "Table")
+              )
             )
           ),
           tabPanel(

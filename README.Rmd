@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
     <img src="man/figures/susospatial.png" align="right" height="139"
     style="float:right; height:139px;"/></a>
 
-# Survey Solutions Application for Spatial Resource Creation
+# R/Shiny Application for Spatial Resource Creation
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)

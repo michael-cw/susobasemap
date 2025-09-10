@@ -5,7 +5,7 @@
 <img src="man/figures/susospatial.png" align="right" height="139"
     style="float:right; height:139px;"/></a>
 
-# Survey Solutions Application for Spatial Resource Creation
+# R/Shiny Application for Spatial Resource Creation
 
 <!-- badges: start -->
 
@@ -46,6 +46,15 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
   application.
 - **UPCOMING**: Send spatial resources directly to the Survey Solutions
   server through the API interface.
+
+## Important Note
+
+The tool leverages external base map tile providers. Please be aware
+that these services have their own Terms of Use. Some may require a free
+API key or have usage limits.
+
+We welcome your feedback! Please share your thoughts, suggestions, or
+any issues you encounter in this thread.
 
 ## Installation
 

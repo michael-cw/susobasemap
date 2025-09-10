@@ -54,7 +54,11 @@ knitr::opts_chunk$set(
 
 
 
+## Important Note
 
+The tool leverages external base map tile providers. Please be aware that these services have their own Terms of Use. Some may require a free API key or have usage limits.
+
+We welcome your feedback! Please share your thoughts, suggestions, or any issues you encounter in this thread.
 
 
 

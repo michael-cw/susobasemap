@@ -58,6 +58,10 @@ knitr::opts_chunk$set(
 
 The tool leverages external base map tile providers. Please be aware that these services have their own Terms of Use. Some may require a free API key or have usage limits.
 
+For the production of [Open Street Map](https://www.openstreetmap.org/#map=5/38.00/-95.84), [ESRI world imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9), and [Mapbox](https://www.mapbox.com/) Maps, the tool uses the [R basemaps package](https://github.com/16EAGLE/basemaps). Additionally Mapbox maps also require a valid license key.
+
+For the production of [ESRI .tpk files](https://www.esri.com/en-us/arcgis/products/user-types/explore/creator), you require a valid license key. The module uses its own API calls, and credentials must be provided through the app.
+
 We welcome your feedback! Please share your thoughts, suggestions, or any issues you encounter in this thread.
 
 

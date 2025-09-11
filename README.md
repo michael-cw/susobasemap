@@ -110,6 +110,44 @@ susobasemap::runBaseMapAppServer()
 
 ## How it works
 
-\[TBA\]
+Follow these steps to generate your Survey Solutions files:
+
+1.  **Upload Shapefile**:
+
+- In the “Upload shapefile” section, click “Browse…” and select a `.zip`
+  file containing your shapefile (`.shp`, `.shx`, `.dbf`, etc.).
+- The application will automatically unzip and load the shapefile.
+
+2.  **Select a Unique ID**:
+
+- Once the shapefile is loaded, you will be prompted to select the
+  column from your shapefile’s attribute table that contains a unique
+  identifier for each polygon. This is crucial for linking selections to
+  the correct polygons.
+
+3.  **Select Polygons**:
+    - You have two options for selecting the polygons you want to
+      include in your boundary file and base map:
+      - **Option A: Select on Map**: Click on individual polygons on the
+        interactive map. Selected polygons will be highlighted, and
+        their IDs will appear in a table. You can deselect a polygon by
+        clicking it again.
+      - **Option B: Upload a List of IDs**: Upload a single-column
+        `.csv` or `.txt` file containing the unique IDs of the polygons
+        you wish to select. The application will match these IDs with
+        the unique ID column you selected earlier.
+4.  **Generate and Download Files**:
+    - You will see a summary of your selected polygons in the “Selection
+      Summary” section.
+    - Move on to the “Download” section
+      - Click **“Generate Boundary File”** to create the `.geojson` file
+        for your Survey Solutions geography question.
+      - Click **“Generate Base Map”** to create the offline map package
+        (`.tpk` or `.mbtiles`).
+      - Once generated, click the corresponding **“Download”** button to
+        save the files to your computer.
+      - The download button “Table” allows you to download the shape
+        file data immediately after upload in tabular form, i.e. for
+        sampling or other frame specfic activities.
 
 </div>

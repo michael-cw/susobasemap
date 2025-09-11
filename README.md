@@ -50,8 +50,8 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
 ## Important Note
 
 The tool leverages external base map tile providers. Please be aware
-that these services have their own Terms of Use. Some may require a free
-API key or have usage limits.
+that these services have their own Terms of Use. Some may require an API
+key and/or may be subject to usage limits.
 
 For the production of [Open Street
 Map](https://www.openstreetmap.org/#map=5/38.00/-95.84), [ESRI world

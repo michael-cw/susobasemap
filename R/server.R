@@ -342,6 +342,10 @@ main_server <- function(input, output, session) {
                       content = tableForDownload
                       )
   
+  #########################
+  # Survey Solutions Assignment
+  susomapadmin <- mapadminSRV("susomapassign", boundaryfile = zipfilepath, mapfile = TPKpath)
+  
   
 }
 

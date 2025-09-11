@@ -7,10 +7,9 @@ startupModalUI <- function(id) {
 # Module server function
 startupModalSRV <- function(id,
                             useronly = FALSE,
-                            welcometitle = "Welcome to the Survey Solutions Spatial Sampling Application!",
-                            welcomemessage = shiny::h4("Please make sure you have read the relevant documentation,
-                          available under: https://datanalytics.worldbank.org/SpatialSamplingManual/
-                          To continue please provide your Mapbox API key and your username."),
+                            welcometitle = "Welcome to the Survey Solutions Spatial Resource Creation Application!",
+                            welcomemessage = shiny::h4("Please make sure you have read the relevant documentation.
+                                                  To continue please provide your username."),
                             apikeyhead = "Mapbox API key missing!",
                             apikeymessage = "You have not provided a valid key.
                          Without a Mapbox API key, it won't be possible use mapdeck.

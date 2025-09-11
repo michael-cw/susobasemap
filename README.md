@@ -44,8 +44,8 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
     Solutions Interviewer App.
 - **Download Outputs**: Download the generated files directly from the
   application.
-- **UPCOMING**: Send spatial resources directly to the Survey Solutions
-  server through the API interface.
+- **Survey Solutions API Interface**: Send and assign spatial resources
+  directly to the Survey Solutions server through the API interface.
 
 ## Important Note
 

@@ -22,13 +22,31 @@
 #' @importFrom httr parse_url build_url GET content POST write_disk
 #' @importFrom utils URLencode download.file head read.csv unzip
 #' @importFrom lwgeom st_split
+#' @importFrom SurveySolutionsAPI suso_get_api_key
+#' @importFrom data.table .BY
+#' @importFrom data.table .EACHI
+#' @importFrom data.table .GRP
+#' @importFrom data.table .I
+#' @importFrom data.table .N
+#' @importFrom data.table .NGRP
+#' @importFrom data.table .SD
+#' @importFrom data.table :=
 ## usethis namespace: end
 NULL
 
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 if(getRversion() >= "3.3.0")  {
   utils::globalVariables(c(
-    ".", ".data" 
+    ".", ".data",
+    "fileName",
+    "shapeType",
+    "shapesCount",
+    "UserName",
+    "IsLocked",
+    "text",
+    "Reset",
+    "Maps",
+    "importDateUtc"
   )
   )
 }

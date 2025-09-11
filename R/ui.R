@@ -25,6 +25,7 @@ main_ui<-function(request){
     sidebarLayout(
       sidebarPanel(
         tabsetPanel(
+          type = "tabs", id = "admin", selected = "admin",
           tabPanel(
             "Process",
             h4("1) Upload shapefile (ZIP)"),
@@ -72,7 +73,7 @@ main_ui<-function(request){
             shiny::fluidRow(
               column(6),
               column(6,
-                       dwl_dataUI("dl_table", label = "Table")
+                     dwl_dataUI("dl_table", label = "Table")
               )
             )
           ),
@@ -82,10 +83,26 @@ main_ui<-function(request){
             startupModalUI(
               "startupModal"
             )
+          ),
+          tabPanel(
+            "Survey Solutions",
+            mapadminUI2("susomapassign")
           )
         )
       ),
-      mainPanel(leaflet::leafletOutput("map", height = "60vh", width = "100%"))
+      mainPanel(
+        tabsetPanel(
+          id = "main", selected = "Main Map",
+          tabPanel(
+            "Main Map",
+            leaflet::leafletOutput("map", height = "60vh", width = "100%")
+          ),
+          tabPanel(
+            "Survey Solutions",
+            mapadminUI("susomapassign")
+          )
+        )
+      )
     )
   )
 }

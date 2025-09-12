@@ -44,7 +44,7 @@ knitr::opts_chunk$set(
 * **Download Table**: Download the polygon data in tabular representation for further processing.
 * **Select Polygons**:
     * Click directly on the map to select individual polygons.
-    * Upload a `.csv` or `.txt` file containing a list of polygon IDs to select them in bulk.
+    * Upload a `.csv` file containing a list of polygon IDs to select them in bulk.
 * **Generate Survey Solutions Files**:
     * Create the boundary file in *ESRI shape file format* required for geography questions.
     * Generate `.tpk` or `.tif` base maps for offline use in the Survey Solutions Interviewer App.
@@ -126,7 +126,7 @@ susobasemap::runBaseMapAppServer()
 3.  **Select Polygons**:
     * You have two options for selecting the polygons you want to include in your boundary file and base map:
         * **Option A: Select on Map**: Click on individual polygons on the interactive map. Selected polygons will be highlighted, and their IDs will appear in a table. You can deselect a polygon by clicking it again.
-        * **Option B: Upload a List of IDs**: Upload a single-column `.csv` or `.txt` file containing the unique IDs of the polygons you wish to select. The application will match these IDs with the unique ID column you selected earlier.
+        * **Option B: Upload a List of IDs**: Upload a single-column `.csv` file containing the unique IDs of the polygons you wish to select. The application will match these IDs with the unique ID column you selected earlier.
 
 4.  **Generate and Download Files**:
     * You will see a summary of your selected polygons in the "Selection Summary" section.

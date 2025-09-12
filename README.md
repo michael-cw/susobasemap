@@ -35,8 +35,8 @@ and base maps for the World Bank’s Survey Solutions CAPI system.
   representation for further processing.
 - **Select Polygons**:
   - Click directly on the map to select individual polygons.
-  - Upload a `.csv` or `.txt` file containing a list of polygon IDs to
-    select them in bulk.
+  - Upload a `.csv` file containing a list of polygon IDs to select them
+    in bulk.
 - **Generate Survey Solutions Files**:
   - Create the boundary file in *ESRI shape file format* required for
     geography questions.
@@ -133,9 +133,9 @@ Follow these steps to generate your Survey Solutions files:
         their IDs will appear in a table. You can deselect a polygon by
         clicking it again.
       - **Option B: Upload a List of IDs**: Upload a single-column
-        `.csv` or `.txt` file containing the unique IDs of the polygons
-        you wish to select. The application will match these IDs with
-        the unique ID column you selected earlier.
+        `.csv` file containing the unique IDs of the polygons you wish
+        to select. The application will match these IDs with the unique
+        ID column you selected earlier.
 4.  **Generate and Download Files**:
     - You will see a summary of your selected polygons in the “Selection
       Summary” section.

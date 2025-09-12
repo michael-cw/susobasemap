@@ -495,7 +495,17 @@ mapadminSRV <- function(id, boundaryfile = reactive({
           if (nrow(mapsvselall) > 0) mapsvselall[, Reset := NULL]
           # add new rows
           mapsvsel <- data.table::data.table(Team = svsel$UserName, Maps = mapsel$fileName)
+          # Check for full selection
+          if(length(mapsvsel)==length(mapsvselall)){ 
           mapsvselall <- data.table::rbindlist(list(mapsvselall, mapsvsel))
+          } else {
+            shiny::showNotification(
+              "Please select file name and responsible user!",
+              type = "warning"
+            )
+            req(FALSE)
+          }
+          
           # assign the maps
           for(i in 1:nrow(mapsvsel)){
             SurveySolutionsAPI::suso_mapassign(fileName = mapsvsel$Maps[i], 

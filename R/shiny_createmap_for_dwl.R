@@ -657,7 +657,7 @@ modal_createbasemap_server <- function(id,
                          suppressWarnings(
                            check<-tryCatch(
                              {getStaticMapAsRaster(shape = thp, byShape = F,
-                                                   file_path = fpp,
+                                                   file_path = file.path(fpp, "basemaps_tif"),
                                                    mapservice = baseMapService(),
                                                    singleMap = T, key = input$base_key,
                                                    name_var = "areaName")},

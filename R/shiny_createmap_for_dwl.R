@@ -432,6 +432,13 @@ modal_createbasemap_server <- function(id,
                                         )
                        )
                 )
+              ),
+              fluidRow(
+                column(4),
+                column(4,
+                       numericInput(ns("map_bounds"),step = 1, value = 0, label = "Add buffer?")
+                       ),
+                column(4)
               )
             )
           ),
@@ -638,13 +645,21 @@ modal_createbasemap_server <- function(id,
                          thp<-samp_raster_shp
                          areaName<-paste0("area_map")
                          thp$areaName<-areaName
+                         # add buffer
+                         if(input$map_bounds>0) {
+                           crsold <- sf::st_crs(thp)
+                           thp <- sf::st_transform(thp, 3857)
+                           thp <- thp %>%
+                             sf::st_buffer(input$map_bounds) %>%
+                             sf::st_transform(crsold)
+                         }
                          # Write to file
                          suppressWarnings(
                            check<-tryCatch(
                              {getStaticMapAsRaster(shape = thp, byShape = F,
                                                    file_path = fpp,
                                                    mapservice = baseMapService(),
-                                                   singleMap = T,
+                                                   singleMap = T, key = input$base_key,
                                                    name_var = "areaName")},
                              error = function(e) return("error happens here!")
                            )
@@ -657,7 +672,6 @@ modal_createbasemap_server <- function(id,
                          TPKpath(zfile)
                        } else if (input$split_segments=="Yes") {
                          tmpFile<-character(length = length(st_geometry(samp_raster_shp)))
-                         
                          for (i in seq_along(st_geometry(samp_raster_shp))) {
                            thp<-samp_raster_shp[i,]
                            # File name
@@ -708,7 +722,7 @@ modal_createbasemap_server <- function(id,
                                {getStaticMapAsRaster(shape = thp,
                                                      file_path = file.path(fpp, "basemaps_tif"),
                                                      mapservice = baseMapService(),
-                                                     singleMap = T,
+                                                     singleMap = T, key = input$base_key, 
                                                      name_var = ifelse(
                                                        sampType()=="Random Grid",
                                                        "GRIDID",

@@ -95,7 +95,7 @@ main_ui<-function(request){
           id = "main", selected = "Main Map",
           tabPanel(
             "Main Map",
-            leaflet::leafletOutput("map", height = "60vh", width = "100%")
+            leaflet::leafletOutput("map", height = "100vh", width = "100%")
           ),
           tabPanel(
             "Survey Solutions",

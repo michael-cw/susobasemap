@@ -87,6 +87,7 @@ main_server <- function(input, output, session) {
     #   )
     # )
     sfobj <- read_shapefile_from_zip(input$zip$datapath)
+   
     if (is.na(st_crs(sfobj))) {
       showNotification("Warning: the shapefile has no CRS. Display may be inaccurate.", type = "warning")
     }
@@ -118,6 +119,17 @@ main_server <- function(input, output, session) {
     req(shp())
     selectInput("map_id_field", "Show attribute on hover (optional)",
                 choices = c("Select Variable", names(shp())))
+  })
+  
+  # Modify shape
+  shp_mod<-reactiveVal(NULL)
+  observeEvent(input$map_id_field, {
+    req(shp())
+    req(input$map_id_field!="Select Variable")
+    sfobj<-shp()
+    # Union if shape file contains sub segment
+    sfobj <- union_shapefile(sfobj, input$map_id_field)
+    shp_mod(sfobj)
   })
   
   output$map <- leaflet::renderLeaflet({
@@ -153,17 +165,19 @@ main_server <- function(input, output, session) {
   })
   
   observeEvent(input$map_id_field, {
-    req(shp())
+    req(shp_mod())
     req(input$map_id_field!="Select Variable")
     print(input$map_id_field)
-    sfobj <- shp()
+    sfobj <- shp_mod()
+    # # Union if shape file contains sub segment
+    # sfobj <- union_shapefile(sfobj, input$map_id_field)
     waiter::waiter_show(
       html = tagList(
         waiter::spin_fading_circles(),
         "Loading ..."
       )
     )
-    sfobj<-sfobj %>% sf::st_simplify()
+    #sfobj<-sfobj %>% sf::st_simplify()
     
     leaflet::leafletProxy("map", data = sfobj) |>
       clearShapes() |>
@@ -191,7 +205,7 @@ main_server <- function(input, output, session) {
     
     # highight map
     isolate({
-      sfobj <- shp()
+      sfobj <- shp_mod()
       ids <- current
       if (length(ids)) {
         leaflet::leafletProxy("map") |>
@@ -208,15 +222,15 @@ main_server <- function(input, output, session) {
     # reset table
     selected_ids(integer(0))
     # reset map
-    req(shp())
-    sfobj <- shp()
+    req(shp_mod())
+    sfobj <- shp_mod()
     waiter::waiter_show(
       html = tagList(
         waiter::spin_fading_circles(),
         "Loading ..."
       )
     )
-    sfobj<-sfobj %>% sf::st_simplify()
+    # sfobj<-sfobj %>% sf::st_simplify()
     
     leaflet::leafletProxy("map", data = sfobj) |>
       clearShapes() |>
@@ -240,8 +254,8 @@ main_server <- function(input, output, session) {
     })
   
   observeEvent(selected_ids, {
-    req(shp())
-    sfobj <- shp()
+    req(shp_mod())
+    sfobj <- shp_mod()
     ids <- selected_ids()
     # base pipe cannot take a { } block; wrap in an anon function instead
     (\(m) {
@@ -260,8 +274,8 @@ main_server <- function(input, output, session) {
   }, ignoreInit = TRUE)
   
   selected_sf <- reactive({
-    req(shp())
-    sfobj <- shp()
+    req(shp_mod())
+    sfobj <- shp_mod()
     if (input$mode == "map") {
       ids <- selected_ids()
       return(if (!length(ids)) sfobj[0, ] else sfobj[sfobj$.lid %in% ids, ])
@@ -278,8 +292,8 @@ main_server <- function(input, output, session) {
   })
   
   output$sel_info <- renderPrint({
-    req(shp())
-    n_total <- nrow(shp()); n_sel <- nrow(selected_sf())
+    req(shp_mod())
+    n_total <- nrow(shp_mod()); n_sel <- nrow(selected_sf())
     cat("Selected polygons:", n_sel, "of", n_total, "\n")
     if (n_sel > 0) {
       cat("Preview of selected attribute names:\n")
@@ -332,9 +346,9 @@ main_server <- function(input, output, session) {
     paste0(paste("Table", SYT, "seed", SEE, sep = "_"), ".zip")
   })
   tableForDownload<-reactive({
-    req(shp())
+    req(shp_mod())
     shinyjs::enable("dl_table")
-    tmp<-shp() %>% sf::st_set_geometry(NULL)
+    tmp<-shp_mod() %>% sf::st_set_geometry(NULL)
     return(tmp)
   })
   download_csv_server("dl_table",

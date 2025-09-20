@@ -327,9 +327,9 @@ main_server <- function(input, output, session) {
                                         fpp = fpp(), fppTPK = fppTPK(), fppTPKerror = fppTPKerror(),
                                         sample_seed = sample_seed,
                                         shape_boundaries = selected_sf,
-                                        sampType = reactiveVal(
+                                        sampType = reactiveVal({
                                           "Random Cluster"
-                                        )
+                                        })
   )
   mapNameForDownload <- reactive({
     SYT <- stringr::str_remove_all(Sys.time(), "([:punct:])|([:space:])")

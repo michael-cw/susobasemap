@@ -715,11 +715,12 @@ modal_createbasemap_server <- function(id,
                              thp$label<-seq_along(st_geometry(thp))
                              ## area name
                              thp$areaName<-areaName
-                             
+                             CHECKthp1<<-thp
                              
                            } else if(sampType()== "Random Cluster" && as.numeric(input$bound_segments)==0) {
                              ## area name
                              thp$areaName<-areaName
+                             CHECKthp<<-thp
                            }
                            
                            # add buffer

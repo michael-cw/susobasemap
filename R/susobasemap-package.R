@@ -11,7 +11,7 @@
 #' @importFrom waiter waiter_show
 #' @importFrom sf st_area st_as_sf st_bbox st_crs st_drop_geometry st_geometry 
 #' st_intersection st_is_longlat st_make_grid st_make_valid st_read st_sample 
-#' st_sf st_transform st_write st_set_geometry st_sfc st_linestring st_cast
+#' st_sf st_transform st_write st_set_geometry st_sfc st_linestring st_cast st_as_sfc
 #' @importFrom leaflet addPolygons addScaleBar addTiles clearGroup clearShapes 
 #' fitBounds highlightOptions leaflet leafletOptions leafletOutput 
 #' leafletProxy renderLeaflet
@@ -31,6 +31,10 @@
 #' @importFrom data.table .NGRP
 #' @importFrom data.table .SD
 #' @importFrom data.table :=
+#' @importFrom httr2 req_headers request req_error req_body_form req_method req_perform
+#' resp_status resp_status_desc resp_body_json req_url_query resp_body_raw resp_body_string
+#' resp_header
+#' @importFrom utils tail
 ## usethis namespace: end
 NULL
 

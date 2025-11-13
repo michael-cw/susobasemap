@@ -57,7 +57,8 @@ modal_createbasemap_provider_ui <- function(id,
                         "Open Street Map (OSM)" = 2,
                         "Mapbox" = 3,
                         "Bing" = 4,
-                        "ESRI Tile Package" = 5),
+                        "ESRI Tile Package" = 5,
+                        "Vantor/Maxar" = 6),
             options = list(
               placeholder = 'Select Provider!',
               onInitialize = I('function() { this.setValue(""); }')
@@ -101,6 +102,22 @@ modal_createbasemap_provider_ui <- function(id,
                                     passwordInput(ns("arc_pw"),
                                                   "Password:",
                                                   placeholder = "ArcGis User Password")
+                             )
+                           )
+          ),
+          br(),
+          # Vantor/Maxar
+          conditionalPanel(sprintf("input['%s'] == 6", ns("base_provider")),
+                           fluidRow(
+                             column(6,
+                                    textInput(ns("van_user"),
+                                              "User Name:",
+                                              placeholder = "Vantor User Name")
+                             ),
+                             column(6,
+                                    passwordInput(ns("van_pw"),
+                                                  "Password:",
+                                                  placeholder = "Vantor Password")
                              )
                            )
           ),
@@ -205,7 +222,8 @@ modal_createbasemap_server <- function(id,
               "2" = "osm",
               "3" = "mapbox",
               "4" = "bing",
-              "5" = "esritpk"
+              "5" = "esritpk",
+              "6" = "vanmax"
       )
     })
     
@@ -216,12 +234,14 @@ modal_createbasemap_server <- function(id,
       shinyjs::disable("base_provider")
       resetVal(FALSE)
       # all others
-      if(input$base_provider %in% c(1,2,3,4)) {
+      if(input$base_provider %in% c(1,2,3,4, 6)) {
         shinyjs::hide("base_key")
         shinyjs::hide("arc_service")
         shinyjs::hide("arc_portal")
         shinyjs::hide("arc_user")
         shinyjs::hide("arc_pw")
+        shinyjs::hide("van_user")
+        shinyjs::hide("van_pw")
       } else if (input$base_provider==5) {
         # esri
         shinyjs::disable("arc_service")
@@ -243,6 +263,11 @@ modal_createbasemap_server <- function(id,
         # esri
         tab<-ifelse((input$arc_user==""|input$arc_pw==""), "Not All Credentials Provided!", "User & Password Provided!")
         
+      } else if (input$base_provider==6) {
+        # vantor
+        print("hallo")
+        tab<-ifelse((input$van_user==""|input$van_pw==""), "Not All Credentials Provided!", "User & Password Provided!")
+        
       }
       return(tab)
       
@@ -256,6 +281,11 @@ modal_createbasemap_server <- function(id,
       } else if (input$base_provider==5) {
         # esri
         tab<-ifelse((input$arc_user==""|input$arc_pw==""), "Not All Credentials Provided!", "User & Password Provided!")
+        
+      } else if (input$base_provider==6) {
+        # vantor
+        print("hallo")
+        tab<-ifelse((input$van_user==""|input$van_pw==""), "Not All Credentials Provided!", "User & Password Provided!")
         
       }
       return(tab)
@@ -272,12 +302,14 @@ modal_createbasemap_server <- function(id,
       shinyjs::enable("base_set")
       shinyjs::enable("base_provider")
       # enable other buttons
-      if(input$base_provider %in% c(1,2,3,4)) {
+      if(input$base_provider %in% c(1,2,3,4,6)) {
         shinyjs::show("base_key")
         shinyjs::show("arc_service")
         shinyjs::show("arc_portal")
         shinyjs::show("arc_user")
         shinyjs::show("arc_pw")
+        shinyjs::show("van_user")
+        shinyjs::show("van_pw")
         ## RESET KEY FIELD
         updateTextInput(session = session,
                         inputId = "base_key",
@@ -345,6 +377,8 @@ modal_createbasemap_server <- function(id,
         mod_title<-"This will create the Bing Maps basemap (.tif) for the Survey Solutions Interviewer application:"
       } else if(input$base_provider==5) {
         mod_title<-"This will create the ESRI Tile Package (.tpk) for the Survey Solutions Interviewer application:"
+      } else if(input$base_provider==6) {
+        mod_title<-"This will create the Vantor/Maxar (.tif) for the Survey Solutions Interviewer application:"
       }
       
       return(mod_title)
@@ -635,6 +669,109 @@ modal_createbasemap_server <- function(id,
                          # return path for zip file
                          TPKpath(zfile)
                        }
+                     } else if (baseMapService()=="vanmax") {
+                       print("vanmax")
+                       # working directory
+                       if(!dir.exists(fpp)) {
+                         dir.create(fpp, recursive = T)
+                       }
+                       
+                       # credentials
+                       van_token<-get_maxar_token(input$van_user, input$van_pw)
+                       
+                       
+                       # not implemented for single map
+                       if(input$split_segments=="No"){
+                         
+                       } else if (input$split_segments=="Yes") {
+                         
+                         tmpFile<-character(length = length(st_geometry(samp_raster_shp)))
+                         
+                         for (i in seq_along(st_geometry(samp_raster_shp))) {
+                           thp<-samp_raster_shp[i,]
+                           # File name
+                           areaName<-ifelse(
+                             ## for grid use grid codes!
+                             sampType()== "Random Grid",
+                             paste0("seg_",thp$GRIDID),
+                             ifelse(
+                               input$cluster_id=="No",
+                               paste0("seg_",thp$CID),
+                               paste0("seg_",thp[[input$cluster_id_sel]])
+                             )
+                           )
+                           # add areaName to data
+                           thp$GRIDID<-areaName
+                           # create path
+                           fn<-file.path(fpp, "basemaps_tif" ,paste0("seg_",areaName, "_ALL", ".tif"))
+                           # check if file exists, if it exists, store path and next
+                           if(file.exists(fn)) {
+                             tmpFile[i]<-fn
+                             incProgress(0.8/length(st_geometry(samp_raster_shp)))
+                             next()
+                           }
+                           if(sampType()== "Random Grid" && as.numeric(input$bound_segments)>0) {
+                             thp<- sf::st_sf(
+                               geometry=sf::st_make_grid(thp, n = as.numeric(input$bound_segments)),
+                               GRIDID = areaName
+                             )
+                           } else if(sampType()== "Random Cluster" && as.numeric(input$bound_segments)>0) {
+                             req(sample_seed())
+                             suppressWarnings(
+                               thp<- tryCatch(
+                                 {split_poly(thp, as.numeric(input$bound_segments), sample_seed())},
+                                 error = function(e) {
+                                   shiny::showNotification(paste0(areaName, "could not be split."), type = "warning")
+                                   return(thp)
+                                 }
+                               )
+                             )
+                             ## add label
+                             thp$label<-seq_along(st_geometry(thp))
+                             ## area name
+                             thp$areaName<-areaName
+                             
+                           } else if(sampType()== "Random Cluster" && as.numeric(input$bound_segments)==0) {
+                             ## area name
+                             thp$areaName<-areaName
+                           }
+                           
+                           # add buffer
+                           if(input$map_bounds>0) {
+                             crsold <- sf::st_crs(thp)
+                             thp <- sf::st_transform(thp, 3857)
+                             thp <- thp %>%
+                               sf::st_buffer(input$map_bounds) %>%
+                               sf::st_transform(crsold)
+                           }
+                           
+                           # bounding box
+                           bbox_3857<-thp %>% st_transform(3857) %>% st_bbox()
+                           
+                           # file name
+                           
+                           suppressWarnings(
+                             check<-tryCatch(
+                               {tif_file <- get_maxar_wms_basemap(
+                                 bbox = bbox_3857,
+                                 token = van_token$access_token,
+                                 output_file = fn,
+                                 resolution = 0.30,  # 30 cm
+                                 product = "VIVID_STANDARD_30"
+                               )},
+                               error = function(e) return(e)
+                             )
+                           )
+                           incProgress(0.8/length(st_geometry(samp_raster_shp)))
+                         }
+                         dirpath<-dirname(check[[1]])
+                         fs<-list.files(dirpath, full.names = T, pattern = ".tif")
+                         zfile<-tempfile("mapfordownload", fileext = ".zip")
+                         zip::zip(zipfile=zfile, files=fs, mode = "cherry-pick")
+                         # return path for zip file
+                         TPKpath(zfile)
+                       }
+                       
                      } else {
                        # Check/create directory
                        if(!dir.exists(fpp)) {
@@ -715,12 +852,10 @@ modal_createbasemap_server <- function(id,
                              thp$label<-seq_along(st_geometry(thp))
                              ## area name
                              thp$areaName<-areaName
-                             CHECKthp1<<-thp
-                             
+
                            } else if(sampType()== "Random Cluster" && as.numeric(input$bound_segments)==0) {
                              ## area name
                              thp$areaName<-areaName
-                             CHECKthp<<-thp
                            }
                            
                            # add buffer

@@ -17,6 +17,7 @@ Imports:
     glue,
     htmltools,
     httr,
+    httr2,
     jsonlite,
     leaflet,
     lubridate,
@@ -32,6 +33,7 @@ Imports:
     stars,
     stringr,
     SurveySolutionsAPI,
+    terra,
     utils,
     waiter,
     zip
